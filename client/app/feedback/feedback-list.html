@@ -1,0 +1,165 @@
+
+<style type="text/css">
+    .input-w-50 {
+    width: 142px;
+}
+</style>
+<div class="page page-table" ng-controller="FeedbackCtrl">
+
+    <div class="row ui-section">
+        <div class="col-md-8 clearfix">
+            <h2 class="section-header">反馈列表</h2>
+        </div>
+
+    <div class="col-md-12" ng-show="isShow == 1">
+        <section class="panel panel-default table-dynamic">
+            <div class="table-filters">
+                <div class="row">
+                    <div class="col-sm-12 col-xs-12" >
+                        <form class="question_list_header">
+
+                            <label class="col-sm-2 col-xs-2">
+                                <span >用户账号:</span>
+                                <input type="text" id="userName" class="border-radius-5 border-default ml-10 input-default input-w-50"
+                                data-ng-model="userName" data-ng-keyup="search()">
+                            </label>
+
+                            <label class="col-sm-2 col-xs-2">
+                                <span >真实姓名:</span>
+                                <input type="text" id="realName" class="border-radius-5 border-default ml-10 input-default input-w-50"
+                                data-ng-model="realName" data-ng-keyup="search()">
+                            </label>
+
+                            <label class="col-sm-2 col-xs-2">
+                                <span >联系方式:</span>
+                                <input type="text" id="mobile" class="border-radius-5 border-default ml-10 input-default input-w-50"
+                                data-ng-model="mobile" data-ng-keyup="search()">
+                            </label>
+
+                            <label class="col-sm-2 col-xs-2">
+                                <span >地区:</span>
+                                <select data-ng-model="provinceCode" class="border-radius-5 border-default ml-10 input-default input-w-50" data-ng-change="search()">
+                                    <option data-ng-repeat="province in provinces" value="{{province.provinceCode}}">{{province.provinceName}}</option>
+                                </select>
+                            </label>
+
+                            <label class="col-sm-2 col-xs-2">
+                                <span >反馈时间:</span>
+                               <input type="text" id="feedBackDate" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" class="border-radius-5 border-default ml-10 input-default input-w-50"
+                        data-ng-model="feedBackDate"  data-ng-keyup="search()" data-ng-change="search()">
+                            </label>
+
+                        </form>
+                    </div>
+
+                    <div class="col-md-4 clearfix">
+                        <!-- <a class=" md-primary add-product"  href="#/question/question-add" >录入问题</a> -->
+                        <!-- <a class=" md-primary add-product"  ng-click="deleteList()" >批量删除</a> -->
+                    </div>
+
+                </div>
+            </div>
+
+            <table class="table table-bordered table-striped table-responsive">
+                <thead>
+                    <tr>
+                        <!-- <th>
+                        <div class="th">
+                        <md-checkbox ng-click="selectAll()" ng-checked="isSelectedAll">全选</md-checkbox>
+                        </div>
+                        </th> -->
+                        <th><div class="th">
+                            反馈ID
+                        </div></th>
+                        <th><div class="th">
+                            用户账号
+                        </div></th>
+                        <th><div class="th">
+                            真实姓名
+                        </div></th>
+                        <th><div class="th">
+                            联系方式
+                        </div></th>
+                        <th><div class="th">
+                            地址
+                        </div></th>
+                        <!-- <th><div class="th">
+                            手机号
+                        </div></th> -->
+                        <th><div class="th">
+                            反馈时间
+                        </div></th>
+                        <th><div class="th">
+                            反馈内容
+                        </div></th>
+                        <th><div class="th">
+                            反馈图片
+                        </div></th>
+                        <th><div class="th">
+                            操作
+                        </div></th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr data-ng-repeat="store in currentPageStores" class="delete-{{store.feedBackId}}">
+                        <!--  <td> <md-checkbox ng-click="selectItem(store.feedbackId)" ng-checked="selected[store.feedbackId]"></md-checkbox></td> -->
+                        <td ng-bind="store.feedBackId"></td>
+                        <td ng-bind="store.account"></td>
+                        <td ng-bind="store.realName" class="product-buyer-name"></td>
+                        <!-- <td ><img ng-src="{{store.image}}" alt="" style="width: 120px;max-height: 100px;"></td> -->
+                        <td ng-bind="store.mobile"></td>
+                       <!--  <td ng-bind="store.mobile"></td> -->
+                        <td ng-bind="store.address"></td>
+                        <td ng-bind="store.feedBackDate"></td>
+                        <td ng-bind="store.content"></td>
+                        <td>
+                            <!-- <span data-ng-repeat="image in store.images">{{image.imageUrl}}<br/></span> -->
+                            <a href="{{image.imageUrl}}" data-ng-repeat="image in store.images" target="_blank">{{image.imageUrl}}<br/><br/></a>
+                            <!-- <a href="{{image.imageUrl}}" data-ng-repeat="image in store.images">{{image.imageUrl}}<br/></a> -->
+                        </td>
+                       <!--  <td ng-bind="store.createdDate | date:'yyyy-MM-dd hh:mm:ss'"></td> -->
+                        <td class="opertation">
+                            <a href="#/feedback/feedback-add?id={{store.feedBackId}}">回复</a>
+                            <a href="" ng-click="deleteFeedBack(store.feedBackId)">删除</a></td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+                <footer class="table-footer">
+                    <div class="row">
+                        <div class="col-md-6 page-num-info">
+                            <span>
+                                显示
+                                <select data-ng-model="numPerPage"
+                                data-ng-options="num for num in numPerPageOpt"
+                                data-ng-change="onNumPerPageChange()">
+                            </select>
+                            条
+                            当前页{{filteredStores.length}}条/总{{total}}条
+                        </span>
+                    </div>
+                    <div class="col-md-6 text-right pagination-container">
+                        <uib-pagination class="pagination-sm"
+                        ng-model="currentPage"
+                        total-items="total"
+                        max-size="4"
+                        ng-change="select(currentPage)"
+                        items-per-page="numPerPage"
+                        rotate="false"
+                        previous-text="&lsaquo;" next-text="&rsaquo;"
+                        boundary-links="true"></uib-pagination>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </div>
+</div>
+
+</div>
+<style>
+    .birthInput{
+        width: 100px;
+    }
+</style>
