@@ -652,7 +652,7 @@
 
 
         $scope.cancel=function(id){
-            $http.post('http://localhost:8080/applicationMarket- 0/' + 'app/cancelRecommend.do', {}, {
+            $http.post('http://localhost:8080/applicationMarket-server/' + 'app/cancelRecommend.do', {}, {
                 params: {
                     appId:id
                 }
