@@ -1362,6 +1362,11 @@ $scope.selectAll = function () {
         //添加应用
         $scope.addApp=function(){
 
+            if ($scope.reshow==1) {
+                $scope.showAlert("当前应用还未上传成功，请耐心等待！！！");
+                return;
+            }
+
            
             if ($scope.platform==undefined) {
                 $scope.showAlert("选择平台不能为空");
