@@ -3,6 +3,8 @@
 
     angular.module('app.taskKind',[])
     .controller('TaskKindCtrl', ['$scope','$http','$mdDialog','$location','$timeout',TaskKindCtrl])
+     .controller('taskRewardCtrl', ['$scope', '$http','$location','$mdDialog','$timeout',taskRewardCtrl])
+    .controller('TaskListCtrl', ['$scope','$http','$mdDialog','$location','$timeout',TaskListCtrl])
     .controller('TaskKindDetailCtrl', ['$scope', '$http','$location','$mdDialog','$timeout',TaskKindDetailCtrl])
     .controller('TaskKindchangeCtrl', ['$scope', '$http','$location','$mdDialog','$timeout',TaskKindchangeCtrl])
     .controller('TaskKindAddCtrl', ['$scope', '$http','$location','$mdDialog','$timeout',TaskKindAddCtrl])
@@ -16,6 +18,660 @@
             }
         }
     })
+
+
+    // 查看详情
+    function taskRewardCtrl($scope,$http,$location,$mdDialog,$timeout){
+
+        $scope.backClick = function(){
+            $location.path('/taskKind/task-list');
+        }
+
+        $scope.taskId = $location.search().id;
+        $scope.modapp=0;
+
+        $scope.showAlert = function(txt) {
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                        .clickOutsideToClose(false)
+                        .title(txt)
+                        .ok('确定')
+                    );
+                }
+
+        //任务类型
+        $http.post("http://localhost:8080/applicationMarket-server/"+"task/getTaskTypeList.do?",{},{params:{
+                       
+                    }}).success(function (data){
+                        if(data.code == 0){
+                           $scope.types=data.result;
+                           console.log($scope.types)
+                        } 
+                    });
+
+
+        //获取任务详情
+        $http.post('http://localhost:8080/applicationMarket-server/' + 'task/getTaskById.do',{},{params:{
+            detailId:$scope.taskId
+        }}).success( function (data){
+            if(data.code == 0){
+                $scope.task = data.result;
+                console.log($scope.task);
+            }else{
+                $scope.showAlert(data.message);
+            }
+
+        });
+
+
+        //根据应用名称查找
+        $scope.searchApp=function(){
+             $scope.searchShow=1;
+            if ($scope.appName==undefined) {
+                $scope.appName="";
+            }
+
+            $http.post("http://localhost:8080/applicationMarket-server/"+"app/searchByAppName.do?",{},{params:{
+                        appName:$scope.appName
+                    }}).success(function (data){
+                        if(data.code == 0){
+                            // $scope.showAlert("添加邀请人成功");
+                            // console.log(data.result);
+                            $scope.appInfo=data.result;
+                        }else{
+                            $scope.appInfo=null;
+                        }
+                    })
+
+
+
+        }
+
+
+         $scope.clickContent=function(appId){
+            console.log(appId)
+                for (var i = 0; i < $scope.appInfo.length; i++) {
+                    if ($scope.appInfo[i].appId==appId) {
+                        // console.log(appId)
+                        $scope.appName=$scope.appInfo[i].name;
+                        $scope.task.appId=$scope.appInfo[i].appId;
+                        $scope.appInfo=null;
+                        $scope.searchShow=0;
+                        return;
+                    }
+                }
+            }
+
+            $scope.mouseOver=function(appId){
+                $("#app-"+appId).css("background-color","gray");
+            }
+
+            $scope.mouseLeave=function(appId){
+                $("#app-"+appId).css("background-color","rgb(0,0,0,0)");
+            }
+
+            
+            $scope.mod=function(){
+                $scope.modapp=1;  
+            }
+
+
+             $scope.modtask = function(){
+
+                if ($scope.task.link==undefined) {
+                    $scope.task.link="";
+                }
+
+                //获取开始时间和结束时间
+                $scope.task.startDate=$("#startDate").val();
+                $scope.task.endDate=$("#endDate").val();
+
+                $scope.showConfirm = function() {
+                    // 确定
+                    var confirm = $mdDialog.confirm()
+                    .title('是否确定修改')
+                    .ok('确定修改')
+                    .cancel('取消修改');
+                    $mdDialog.show(confirm).then(function() {
+
+                        $http.post("http://localhost:8080/applicationMarket-server/"+"task/modifyTask.do?",{},{params:{
+                            taskId:$scope.taskId,
+                            taskName:$scope.task.taskName,
+                            introduction:$scope.task.introduction,
+                            // typeId:$scope.task.taskTypeId,
+                            appId:$scope.task.appId,
+                            link:$scope.task.link,
+                            money:$scope.task.rewardMoney,
+                            num:$scope.task.allowNumber,
+                            poupLeve:$scope.task.poupLeve,
+                            startDate:$scope.task.startDate,
+                            endDate:$scope.task.endDate,
+                            status:$scope.task.status,
+                            activated:$scope.task.activated
+                            // publishId:sessionStorage.adminId
+                        }}).success(function (data){
+                            if(data.code == 0){
+                                $scope.showAlert("修改成功");
+                            } else {
+                                $scope.showAlert(data.message)
+                            }
+                        })
+                    },  function() {
+                            $scope.showAlert("取消修改");
+                        });
+                };
+
+                $scope.showAlert = function(txt) {
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                        .clickOutsideToClose(false)
+                        .title(txt)
+                        .ok('确定')
+                    );
+                }
+
+                $scope.showAlert1 = function(txt) {
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                            .clickOutsideToClose(false)
+                            .title(txt)
+                            .ok('确定')
+                     )
+                }
+
+                $scope.showConfirm();
+        }
+
+
+
+
+        
+    }
+
+    function TaskListCtrl($scope,$http,$mdDialog,$location,$timeout){
+        $scope.login = function(){
+            if(sessionStorage.adminId == undefined){
+                $location.path('/page/signin')
+            }
+        }
+
+        $timeout($scope.login(),10)
+
+        var init;
+
+        $scope.stores = [];
+        $scope.kwTaskKindId = '';
+        $scope.kwUserId = '';
+        $scope.kwTitle = '';
+        $scope.filteredStores = [];
+        $scope.row = '';
+        $scope.select = select;
+        $scope.onFilterChange = onFilterChange;
+        $scope.onNumPerPageChange = onNumPerPageChange;
+        $scope.search = search;
+        $scope.numPerPageOpt = [3, 5, 10, 20];
+        $scope.numPerPage = $scope.numPerPageOpt[2];
+        $scope.currentPage = 1;
+        $scope.currentPage = [];
+        $scope.taskKindLists = [];
+
+        $scope.isShow = 0;
+        var authoritySet = sessionStorage.authoritySet.split(',');
+        for (var i = 0; i < authoritySet.length; i++) {
+            if (authoritySet[i] == "47") {
+                $scope.isShow = 1;
+            }
+        }
+
+
+        $scope.userId="";
+        $scope.userName="";
+        $scope.realName="";
+        $scope.authDate="";
+        $scope.provinceCode="";
+        $scope.status="";
+
+
+
+        //获取地区
+        $http.post('http://localhost:8080/applicationMarket-server/' + 'address/getProvinces.do',{},{params:{
+            }}).success(function (data) {
+                if (data.code == 0) {
+                    $scope.provinces=data.result;
+                }
+            });
+
+
+
+        function getTaskKindList(pageNum, pageSize){
+
+            $scope.authDate=$("#authDate").val();
+
+
+            $http.post('http://localhost:8080/applicationMarket-server/' + 'task/getFinshTaskList.do',{},{params:{
+                pageNum:pageNum,
+                pageSize:pageSize,
+                status:$scope.status,
+                mobile:$scope.mobile,
+                time:$scope.time,
+                activated:$scope.activated
+            }}).success(function (data) {
+                if (data.code == 0) {
+                    $scope.taskKindLists=data.result;
+                    $scope.stores=data.result;
+                    $scope.taskKind=data.result;
+                    $scope.currentPageStores = data.result;
+                    $scope.filteredStores = data.result;
+                    // $scope.currentPageStores.$apply;
+                    $scope.total = data.total;
+                }else {
+                    $scope.currentPageStores = null;
+                }
+            });
+        }
+
+        $scope.export = function(){
+            var obj = {title:"", titleForKey:"", data:""};
+            obj.title = ["任务品类ID","任务品类类型","昵称","手机号","密码",];
+            obj.titleForKey = ["taskKindId","taskKindType","nickName","mobile","password",];
+            obj.data = $scope.stores;
+            exportCsv(obj);
+        }
+
+        function exportCsv(obj){
+            //title ["","",""]
+            var title = obj.title;
+            //titleForKey ["","",""]
+            var titleForKey = obj.titleForKey;
+            var data = obj.data;
+            var str = [];
+            str.push(obj.title.join(",")+"\n");
+            for(var i=0;i<data.length;i++){
+                var temp = [];
+                for(var j=0;j<titleForKey.length;j++){
+                    temp.push(data[i][titleForKey[j]]);
+                }
+
+                str.push(temp.join(",")+"\n");
+            }
+
+            var uri = 'data:text/txt;charset=utf-8,' + encodeURIComponent(str.join(""));
+            var downloadLink = document.createElement("a");
+            downloadLink.href = uri;
+            downloadLink.download = "任务品类列表.csv";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        function select(page) {
+            getTaskKindList(page, $scope.numPerPage);
+        };
+
+        function onFilterChange() {
+            $scope.select(1);
+            $scope.currentPage = 1;
+            return $scope.row = '';
+        };
+
+        function onNumPerPageChange() {
+            $scope.select(1);
+            return $scope.currentPage = 1;
+        };
+
+
+        function search() {
+            $scope.filteredStores = $scope.stores;
+            return $scope.onFilterChange();
+        };
+
+
+        init = function() {
+            $http.post('http://localhost:8080/applicationMarket-server/' + 'task/getFinshTaskList.do',{},{params:{
+                pageNum:1,
+                pageSize:$scope.numPerPage,
+            }}).success(function (data) {
+                if (data.code == 0) {
+                    $scope.stores=data.result;
+                    $scope.total = data.total;
+                    // $scope.search();
+                    // $scope.searchTaskKind(1,$scope.numPerPage);
+                    $scope.currentPageStores = $scope.stores;
+                    // $scope.searchTaskKind(page,$scope.numPerPage);
+                    $scope.filteredStores=data.result;
+                    console.log($scope.stores);
+                }
+            });
+        };
+
+        $scope.selected = {};
+
+        $scope.isSelectedAll = false;
+
+                $scope.isSelected = function (id) {
+            console.log("isSelected==" + $scope.selected[id]);
+            if($scope.selected[id] == true){
+                return true;
+            }else{
+                return false;
+            }         
+                };
+
+                var judgeSelectedAll = function () {
+                    var isSelectedAll = true;
+
+
+              for (var i = 0; i < $scope.currentPageStores.length; i++) {
+
+
+                              var taskKind = $scope.currentPageStores[i];
+
+                            isSelectedAll &= $scope.selected[taskKind.detailId];
+
+                        }
+
+                    return isSelectedAll;
+                  };
+
+                  var updateSelected = function (id) {
+
+                        console.log("?????????????????"+$scope.isSelected(id));
+
+                        if ($scope.isSelected(id)){
+
+
+                            $scope.selected[id] = false;
+                            console.log("?????????????????"+$scope.isSelected(id));
+
+
+                        }else{
+
+                             $scope.selected[id] = true;
+                             console.log("?????????????????"+$scope.isSelected(id));
+
+                        }
+
+                        $scope.isSelectedAll = judgeSelectedAll();
+
+
+
+                       
+                  };
+
+
+
+                  var updateSelectedByStatus = function (id, status) {
+
+                    console.log($scope.isSelected(id));
+
+
+                    $scope.selected[id] = status;
+
+
+
+                       
+                  };
+                 $scope.selectAll = function () {
+
+
+                    console.log("isSelectedAll==="  + $scope.isSelectedAll);
+
+
+                    if($scope.isSelectedAll){
+
+                        $scope.isSelectedAll = false;
+
+                    }else{
+
+                        $scope.isSelectedAll = true;
+
+
+                    }
+
+                            
+                                for (var i = 0; i < $scope.currentPageStores.length; i++) {
+
+
+                                      var taskKind = $scope.currentPageStores[i];
+
+
+
+                                      updateSelectedByStatus(taskKind.detailId, $scope.isSelectedAll);
+
+                                }
+
+
+
+                  };
+
+
+                  $scope.selectItem = function (id) {
+                    console.log("selectItem====="  + id);
+
+
+                    updateSelected(id);
+
+                  };
+
+            //批量审核成功或者审核成功
+            $scope.deleteList = function(status){
+
+
+                          // 确定
+                var confirm = $mdDialog.confirm()
+                            .title('是否确定批量处理')
+                            // .ariaLabel('Lucky day')
+                            // .targetEvent(ev)
+                            .ok('确定')
+                            .cancel('取消');
+
+                $mdDialog.show(confirm).then(function() {
+                    // console.log('确定')
+
+
+                var modifyTopicUrl ="http://localhost:8080/applicationMarket-server/"+"task/handler.do";// 接收上传文件的后台地址
+                    console.log($scope.selected);
+                    var temp = "";
+
+                    var form = new FormData();
+
+                    for(var i in $scope.selected){//用javascript的for/in循环遍历对象的属性
+                        temp = i;
+                        if ($scope.selected[temp]==true) {
+                            console.log(temp);
+                            form.append("ids", temp);
+                            form.append("status",status);
+                        }
+                        
+                        // form.getTaskDetail
+                    }
+
+                    var xhr = new XMLHttpRequest();
+                    var response;
+                    xhr.open("post", modifyTopicUrl, true);
+                    xhr.send(form);
+                    xhr.onreadystatechange = doResult;
+                    function doResult() {
+                        if(xhr.readyState == 4  && xhr.status == 200){
+                             var data=eval("("+xhr.responseText+")");
+
+                             if (data.code==0) {
+                                 //    for(var i in $scope.selected){
+                                 //    temp = i;
+                                 //    for (var i = $scope.currentPageStores.length - 1; i >= 0; i--) {
+                                 //        if ($scope.currentPageStores[i].userId==temp) {
+                                 //            $scope.currentPageStores[i].examinStatus=status;
+                                 //        }
+                                 //    }
+                                 //    // $(".delete-"+temp).css("display","none");
+                                 //    //      $scope.total--;
+                                 // }
+                                    $scope.showAlert("操作成功");
+                             }else{
+                                $scope.showAlert(data.message);
+                             }
+
+                             
+
+                        } 
+
+
+                    }
+                    // init();
+                    $scope.showAlert = function(txt) {
+
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                            .clickOutsideToClose(false)
+                            .title(txt)
+                            .ok('确定')
+                        )
+
+                    }
+
+            })
+
+        }
+
+
+
+
+       // 搜索
+
+       $scope.searchTaskKind = function(pageNum,pageSize){
+           $scope.isSearch = true;
+
+           $scope.taskKindId = $("#taskKindId").val();
+           $scope.nickName = $("#nickName").val();
+           /*$scope.csName = $("#csName").val();*/
+           console.log($scope.nickName)
+
+
+           /* $scope.name = $("#name").val();*/
+           $scope.mobile = $("#mobile").val();
+
+
+
+           $http.post('http://localhost:8080/applicationMarket-server/' + 'taskKind/getTaskKindList.do',{},{params:{
+            taskKindId:$scope.kwTaskKindId,
+
+                userId:$scope.kwUserId ,
+                title: $scope.kwTitle,
+                    pageNum:pageNum,
+                    pageSize:pageSize
+                }}).success(function (data){
+                    if(data.errorCode == 0){
+                        $scope.stores=data.result;
+                        $scope.total = data.total;
+                        $scope.currentPageStores = $scope.stores;
+                        $scope.total.$apply;
+                        $scope.currentPageStores.$apply;
+                        console.log("total:" + data.total);
+                    }
+                })
+                $scope.showAlert = function(txt) {
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                        .clickOutsideToClose(false)
+                        .title(txt)
+                        .ok('确定')
+                        )
+
+                }
+            // console.log($scope.productType);
+            console.log($scope.numPerPage);
+
+        }
+
+
+
+        // 删除任务品类
+        $scope.deleteTaskKind = function(id){
+            $scope.showConfirm = function() {
+                // 确定
+                var confirm = $mdDialog.confirm()
+                .title('是否确定删除该条任务品类员信息')
+                            // .ariaLabel('Lucky day')
+                            // .targetEvent(ev)
+                            .ok('确定')
+                            .cancel('取消');
+                            $mdDialog.show(confirm).then(function() {
+                    // console.log('确定')
+                    $http.post("http://localhost:8080/applicationMarket-server/"+"taskKind/deleteTaskKind.do?",{},{params:{
+                        taskKindId:id
+                    }}).success(function (data){
+                        if(data.errorCode == 0){
+                            $scope.showAlert("删除任务品类成功");
+                            $(".delete-"+id).css("display","none");
+                            $scope.total--;
+                        } else {
+                            $scope.showAlert(data.errorMessage);
+                        }if($scope.total<$scope.numPerPage){
+                            $scope.filteredStores.length=$scope.total;
+                        }
+
+                    })
+                }, function() {
+
+                    $scope.showAlert("取消删除");
+                });
+                        };
+                        $scope.showAlert = function(txt) {
+
+                            $mdDialog.show(
+                                $mdDialog.alert()
+                                .clickOutsideToClose(false)
+                                .title(txt)
+                                .ok('确定')
+                                )
+
+                        }
+                        $scope.showConfirm();
+                    }
+
+
+        //设为精英
+        $scope.setElite = function(id){
+            $scope.showConfirm = function(){
+                var confirm = $mdDialog.confirm()
+                .title('是否确定设置该任务品类为精英')
+                .ok('确定')
+                .cancel('取消');
+                $mdDialog.show(confirm).then(function(){
+                    $http.post("http://localhost:8080/applicationMarket-server/"+"elite/addElite.do?",{},{params:{
+                        taskKindId:id,
+                    }}).success(function(data){
+                        if(data.errorCode == 0){
+                            $scope.showAlert("设置成功");
+                            $(".set-"+id).css("display","none");
+                            $scope.total--;
+                        }else{
+                            $scope.showAlert(data.errorMessage);
+                        }if($scope.total<$scope.numPerPage){
+                            $scope.filteredStores.length=$scope.total;
+                        }
+                    })
+                },function(){
+                    $scope.showAlert("取消");
+                });
+            };
+            $scope.showAlert = function(txt){
+                $mdDialog.show(
+                    $mdDialog.alert()
+                    .clickOutsideToClose(false)
+                    .title(txt)
+                    .ok('确定')
+                    )
+            }
+            $scope.showConfirm();
+            init();
+        }
+        init();
+
+
+
+    }
+
 
     function TaskKindAppCtrl($scope,$http,$mdDialog,$location,$timeout){
         $scope.login = function(){
@@ -207,7 +863,7 @@
 
                   var updateSelected = function (id) {
 
-            console.log($scope.isSelected(id));
+            console.log("-----?????"+$scope.isSelected(id));
 
                         if ($scope.isSelected(id)){
 
@@ -276,10 +932,10 @@
 
 
                   $scope.selectItem = function (id) {
-            console.log("selectItem"  + id);
+                        console.log("selectItem="  + id);
 
 
-            updateSelected(id);
+                        updateSelected(id);
 
                   };
 

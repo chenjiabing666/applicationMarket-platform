@@ -19,7 +19,7 @@
                 'application/application-list','application/application-add','application/application-change','application/application-detail','application/application-recommend','application/application-export',
                 'setting/setting-change','setting/customize-page','setting/home-page','setting/page-add','setting/page-list',
                 'teacher/teacher-list','teacher/teacher-add','teacher/teacher-detail','teacher/teacher-change',
-                'taskKind/taskKind-list','taskKind/taskKind-add','taskKind/taskKind-detail','taskKind/taskKind-change','taskKind/taskKind-appList',
+                'taskKind/taskKind-list','taskKind/taskKind-add','taskKind/taskKind-detail','taskKind/taskKind-change','taskKind/taskKind-appList','taskKind/task-list','taskKind/task-detail',
                 'clazz/clazz-list','clazz/clazz-add','clazz/clazz-detail','clazz/clazz-change',
                 'message/message-list','message/message-detail','message/message-change','message/message-add',
                 'browse/browse-list','browse/browse-add','browse/browse-detail','browse/browse-message','browse/share-list',
