@@ -155,21 +155,21 @@
   <caption>他完成的任务</caption>
   <thead>
     <tr>
-      <th><div class="th">任务Id</div></th>
+      <th><div class="th">任务名称</div></th>
       <th><div class="th">完成时间</div></th>
       <th><div class="th">奖励</div></th>
-      <th><div class="th">状态</div></th>
+      <th><div class="th">类型</div></th>
     </tr>
   </thead>
 
   <tbody>
     <tr ng-repeat="u in tasks">
-      <td>{{u.taskId}}</td>
+      <td>{{u.content}}</td>
       <td>{{u.createDate}}</td>
       <td>{{u.money}}</td>
       <td>
-          <p ng-if="u.status==1">已发放</p>
-          <p ng-if="u.status==2">待发放</p>
+          <p ng-if="u.activated==1">墨客币</p>
+          <p ng-if="u.activated==2">井通</p>
       </td>
       <!-- <td>{{u.deathDate}}</td>
       <td><button class="btn btn-primary" ng-click="unbindingDecedent(u.decedentId)">解除绑定</button></td> -->

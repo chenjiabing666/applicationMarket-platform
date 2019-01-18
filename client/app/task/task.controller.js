@@ -1099,7 +1099,8 @@ function CustomTaskCtrl($scope,$http,$mdDialog,$location,$timeout){
             taskId:$scope.taskId
         }}).success( function (data){
             if(data.code == 0){
-                $scope.task = data.result;
+                $scope.task = data.result.task;
+                $scope.countTotal=data.result.total;
                 console.log($scope.task);
             }
         });

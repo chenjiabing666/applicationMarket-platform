@@ -78,6 +78,26 @@
                             <option value="0">否</option>
                         </select>
                     </label> 
+
+                    <label class="col-sm-12 col-xs-12">
+                        <span>排序：</span>
+                        <select class="border-radius-5 border-default ml-10 input-default input-w-50" data-ng-model="orderType" data-ng-change="search()">
+                            <option value="">不限</option>
+                            <option value="1">上架时间</option>
+                            <option value="2">下载次数</option>
+                        </select>
+
+                        <select class="border-radius-5 border-default ml-10 input-default input-w-50" data-ng-model="direction" data-ng-change="search()">
+                            <option value="">不限</option>
+                            <option value="1">升序</option>
+                            <option value="2">降序</option>
+                        </select>
+
+
+                    </label> 
+
+
+
                 </form>
                
             </div>

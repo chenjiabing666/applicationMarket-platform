@@ -846,7 +846,7 @@ $scope.deleteList = function(){
 
 
         //获取完成的任务
-        $http.post('http://localhost:8080/applicationMarket-server/' + 'user/getTaskListBack.do',{},{params:{
+        $http.post('http://localhost:8080/applicationMarket-server/' + 'task/getTaskDetailByUserId.do',{},{params:{
             userId:$scope.userId   //用户id
         }}).success( function (data){   
             if(data.code == 0){

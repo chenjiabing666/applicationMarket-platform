@@ -187,7 +187,7 @@
         
         //表单回显
         $http.post('http://localhost:8080/applicationMarket-server/' + 'app/getAppDetailInfo.do',{},{params:{
-            appId:$scope.applicationId   //管理员Id
+            appId:$scope.applicationId   
         }}).success( function (data){   
             if(data.code == 0){
                 // console.log(data.result)
@@ -628,7 +628,9 @@
                     isRecommend:$scope.IsRecommend,
                     pageNum: pageNum,    //当前页数
                     pageSize: pageSize,    //每页显示的大小
-                    isMust:$scope.isMust
+                    isMust:$scope.isMust,
+                    orderType:$scope.orderType,
+                    direction:$scope.direction
                 }
             }).success(function (data) {
                 if (data.code == 0) {
