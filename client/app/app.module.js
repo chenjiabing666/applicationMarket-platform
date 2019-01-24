@@ -14,6 +14,7 @@
         ,'app.recommend'
         ,'app.application'
         ,'app.banner'
+        ,'app.currency'
         ,'easypiechart'
         ,'ui.tree'
         ,'textAngular'

@@ -35,6 +35,7 @@
                 'authentication/authentication-list','authentication/authentication-detail',
                 'transfer/transfer-list','transfer/transfer-detail',
                 'banner/banner-list','banner/banner-add','banner/banner-detail','banner/banner-change',
+                'currency/currency-list','currency/currency-add','currency/currency-detail','currency/currency-change',
                 'cancelReason/cancelReason-list','cancelReason/cancelReason-add','cancelReason/cancelReason-change','cancelReason/cancelReason-detail',
                 'rule/rule-list','rule/rule-add','rule/rule-detail','rule/rule-change',
                 'notice/notice-list','notice/notice-add','notice/notice-change','notice/notice-detail','notice/notice-bindUser',

@@ -10,9 +10,6 @@
 
 
 
-
-
-
     //批量导入应用
     function ExportApplicationCtrl($scope, $http, $mdDialog, $location, $timeout) {
 
